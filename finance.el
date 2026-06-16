@@ -10,17 +10,20 @@
 (defun finance-delete-account ()
   "Delete the account at point"
   (interactive)
-  (finance--do-to-account
-   (finance--edit-buffer
-    (org-cut-subtree)
-    (pop kill-ring))))
+  (if (y-or-n-p
+       (format "Delete %s account and all of its sub-accounts?"
+	       (finance-get-account-name)))
+      (finance--do-to-account
+       (finance--edit-buffer
+	(org-cut-subtree)
+	(pop kill-ring)))))
 
 
 (defun finance-edit-account ()
   "Edit the account at point"
   (interactive)
   (finance--do-to-account
-   (let* ((account-name (org-no-properties (org-get-heading t t t t)))
+   (let* ((account-name (finance-get-account-name))
 	  (new-name (read-string "Account name: " account-name)))
      (finance--edit-buffer (org-edit-headline new-name)))))
 
@@ -29,7 +32,7 @@
   "Create a new child account of the account at point."
   (interactive)
   (finance--do-to-account
-   (let ((parent-account-name (org-get-heading t t t t))
+   (let ((parent-account-name (finance-get-account-name))
 	 (parent-level (org-current-level))
 	 (subaccount-name (read-string "New account name: ")))
      (if (and subaccount-name
@@ -43,6 +46,12 @@
 	    (read-only-mode 1)))
        (user-error "Account name cannot be empty.")))))
 
+
+(defun finance-get-account-name ()
+  "Return the name of account at point"
+  (interactive)
+  (finance--do-to-account
+   (org-no-properties (org-get-heading t t t t))))
 
 (defmacro finance--do-to-account (&rest body)
   "Do the given BODY to an account."
