@@ -2,7 +2,7 @@
 
 (define-derived-mode finance-mode org-mode "Finance Mode"
   "A major mode for tracking finances and budgeting."
-  (define-key finance-mode-map (kbd "a") #'finance-add-new-subaccount)
+  (define-key finance-mode-map (kbd "n") #'finance-add-new-subaccount)
   (define-key finance-mode-map (kbd "e") #'finance-edit-account))
 
 
@@ -10,7 +10,7 @@
   "Edit the account at point"
   (interactive)
   (if (org-at-heading-p)
-      (let* ((account-name (org-get-heading t t t t))
+      (let* ((account-name (org-no-properties (org-get-heading t t t t)))
 	     (new-name (read-string "Account name: " account-name)))
 	(finance--edit-buffer (org-edit-headline new-name)))
     (message "Point must be on an account to edit it.")))
