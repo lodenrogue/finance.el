@@ -2,7 +2,7 @@
 
 (define-derived-mode finance-mode org-mode "Finance Mode"
   "A major mode for tracking finances and budgeting."
-  (define-key finance-mode-map (kbd "n") #'finance-create-new-subaccount)
+  (define-key finance-mode-map (kbd "a") #'finance-add-new-subaccount)
   (define-key finance-mode-map (kbd "e") #'finance-edit-account))
 
 
@@ -16,8 +16,8 @@
     (message "Point must be on an account to edit it.")))
 
 
-(defun finance-create-new-subaccount ()
-  "Create a new child account of the account at point"
+(defun finance-add-new-subaccount ()
+  "Create a new child account of the account at point."
   (interactive)
   (if (org-at-heading-p)
       (let ((parent-account-name (org-get-heading t t t t))
