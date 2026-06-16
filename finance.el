@@ -11,7 +11,9 @@
   "Delete the account at point"
   (interactive)
   (finance--do-to-account
-   (delete-line)))
+   (finance--edit-buffer
+    (org-cut-subtree)
+    (pop kill-ring))))
 
 
 (defun finance-edit-account ()
