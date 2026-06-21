@@ -4,7 +4,35 @@
   "A major mode for tracking finances and budgeting."
   (define-key finance-mode-map (kbd "n") #'finance-add-new-subaccount)
   (define-key finance-mode-map (kbd "e") #'finance-edit-account)
-  (define-key finance-mode-map (kbd "d") #'finance-delete-account))
+  (define-key finance-mode-map (kbd "d") #'finance-delete-account)
+  (define-key finance-mode-map (kbd "a") #'finance-add-transaction))
+
+
+(defun finance--prompt-for-transaction (account-name account-buffer account-eol-pos)
+  "Prompt the user for transaction details and return the transaction data."
+  (let ((transaction-window (split-window-below))
+	(transaction-buffer (get-buffer-create (format "*%s Transaction*" account-name))))
+    (select-window transaction-window)
+    (switch-to-buffer transaction-buffer)
+    (erase-buffer)
+    (insert "Description: \n")))
+
+
+(defun finance-add-transaction ()
+  "Add a transaction to the account at point.
+
+If the account has children it is not allowed to have transactions"
+  (interactive)
+  (finance--do-to-account
+   (save-excursion
+     (if (org-goto-first-child)
+	 (user-error "Accounts with children cannot have transactions.")
+       (progn
+	 (end-of-line)
+	 (finance--prompt-for-transaction
+	  (finance-get-account-name)
+	  (buffer-name)
+	  (point)))))))
 
 
 (defun finance-delete-account ()
@@ -39,11 +67,9 @@
 	      (not (string-empty-p subaccount-name)))
 	 (save-excursion
 	   (finance--edit-buffer
-	    (read-only-mode -1)
 	    (end-of-line)
 	    (org-insert-subheading nil)
-	    (insert subaccount-name)
-	    (read-only-mode 1)))
+	    (insert subaccount-name)))
        (user-error "Account name cannot be empty.")))))
 
 
